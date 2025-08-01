@@ -1,4 +1,4 @@
-// Cloudflare Worker for 小六壬算卦 API with Apple 风格前端页面
+// Cloudflare Worker for 小六壬算卦
 
 const positions = ["大安", "流连", "速喜", "赤口", "小吉", "空亡"];
 const explanations = {
