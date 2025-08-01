@@ -1,0 +1,9 @@
+# wrangler.toml（模板，不要把实际 ID 提交到代码库）
+name = "xlr"        # 同时也是 workers.dev 子域名前缀
+type = "javascript"
+
+# 以下三项推荐留空或使用占位，实际部署时通过环境变量或 CI 注入
+account_id = ""               # 通过环境变量 CF_ACCOUNT_ID 设置
+zone_id = ""                  # 如果要绑定自定义域名，通过环境变量 CF_ZONE_ID 设置
+route = ""                    # 如果要在 production 下绑定域名，通过环境变量 CF_ROUTE 设置
+workers_dev = true
