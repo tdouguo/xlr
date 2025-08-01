@@ -1,5 +1,5 @@
 // Cloudflare Worker for 小六壬算卦 API with Apple 风格前端页面
-// 来源 https://linux.do/t/topic/834258
+
 const positions = ["大安", "流连", "速喜", "赤口", "小吉", "空亡"];
 const explanations = {
   "大安": {"运势":"大安卦象为青龙，代表最吉利之时机，万事平顺稳定，运势较好，但不宜过于急躁，应保持稳健心态，从容应对事物。","财富":"大安时期求财容易，财源稳定，可守护旧业或稳步投资，但不宜盲目扩张或高风险操作，以防因急躁导致损失。","感情":"女性在大安期间感情顺遂，与伴侣相互体贴；男性感情稳定但可能缺乏新鲜感，需主动制造浪漫和沟通以避免冷淡。","事业":"事业发展平稳，上司或合作伙伴赏识有加，但需低调行事，不要过分张扬才能长久获益，避免招致嫉妒和小人阻碍。","身体":"身体总体健康，无大碍，但需注意避免过度劳累，保持作息规律，预防因疲劳引发的亚健康问题。","行人":"所问之人平安无事，但目前可能因忙碌或心情平稳而不急于前来。"},
@@ -45,34 +45,47 @@ async function handleRequest(request) {
   <title>小六壬算卦</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background: #f2f2f7; color: #1c1c1e; }
-    .container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 24px; }
-    h1 { font-size: 24px; text-align: center; margin-bottom: 16px; }
-    input[type=number] { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-    select, .checkbox-group { width: 100%; margin: 8px 0; }
-    .checkbox-group label { display: inline-block; margin-right: 12px; font-size: 14px; }
-    button { width: 100%; padding: 14px; background: #007aff; color: #fff; border: none; border-radius: 12px; font-size: 18px; cursor: pointer; }
-    .result { margin-top: 24px; padding: 16px; background: #f9f9f9; border-radius: 12px; }
-    .result p { margin: 8px 0; }
+    .container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); padding: 24px; }
+    h1 { font-size: 28px; text-align: center; margin-bottom: 24px; font-weight: 600; }
+    .inputs input[type=number] { width: 30%; margin-right: 3%; padding: 12px 8px; border: none; background: #f2f2f7; border-radius: 12px; font-size: 18px; text-align: center; }
+    .inputs input[type=number]:last-child { margin-right: 0; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .checkbox-group label { display: inline-flex; align-items: center; padding: 8px 12px; background: #f2f2f7; border-radius: 16px; font-size: 14px; cursor: pointer; }
+    .checkbox-group input[type=checkbox] { accent-color: #007aff; margin-right: 6px; width: 18px; height: 18px; }
+    .toggle { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .toggle input { width: 0; height: 0; opacity: 0; }
+    .slider { position: relative; width: 40px; height: 22px; background: #ccc; border-radius: 12px; transition: background 0.3s; }
+    .slider::before { content: ""; position: absolute; top: 1px; left: 1px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .toggle input:checked + .slider { background: #007aff; }
+    .toggle input:checked + .slider::before { transform: translateX(18px); }
+    button { width: 100%; padding: 16px; background: #007aff; color: #fff; border: none; border-radius: 14px; font-size: 18px; font-weight: 500; cursor: pointer; box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+    button:active { box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
+    .result { margin-top: 32px; padding: 20px; background: #f9f9f9; border-radius: 14px; }
+    .result p { margin: 12px 0; font-size: 16px; line-height: 1.5; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>小六壬算卦</h1>
-    <div>
-      <input id="num1" type="number" placeholder="第一个数字" min="1">
-      <input id="num2" type="number" placeholder="第二个数字" min="1">
-      <input id="num3" type="number" placeholder="第三个数字" min="1">
+    <div class="inputs">
+      <input id="num1" type="number" placeholder="第一个" min="1">
+      <input id="num2" type="number" placeholder="第二个" min="1">
+      <input id="num3" type="number" placeholder="第三个" min="1">
     </div>
-    <div class="checkbox-group">
-      <label><input type="checkbox" value="运势" checked> 运势</label>
-      <label><input type="checkbox" value="财富" checked> 财富</label>
-      <label><input type="checkbox" value="感情" checked> 感情</label>
-      <label><input type="checkbox" value="事业" checked> 事业</label>
-      <label><input type="checkbox" value="身体" checked> 身体</label>
-      <label><input type="checkbox" value="行人" checked> 行人</label>
-      <label><input id="withSummary" type="checkbox" checked> 整体结论</label>
+    <div class="checkbox-group">        
+      <label><input type="checkbox" value="运势" checked>运势</label>
+      <label><input type="checkbox" value="财富" checked>财富</label>
+      <label><input type="checkbox" value="感情" checked>感情</label>
+      <label><input type="checkbox" value="事业" checked>事业</label>
+      <label><input type="checkbox" value="身体" checked>身体</label>
+      <label><input type="checkbox" value="行人" checked>行人</label>
     </div>
-    <button onclick="submitGua()">算  卦</button>
+    <div class="toggle">
+      <label>整体结论</label>
+      <input id="withSummaryToggle" type="checkbox">
+      <span class="slider"></span>
+    </div>
+    <button onclick="submitGua()">算  卦</button>
     <div class="result" id="result"></div>
   </div>
   <script>
@@ -84,7 +97,7 @@ async function handleRequest(request) {
       ];
       const categories = Array.from(document.querySelectorAll('.checkbox-group input[type=checkbox]:checked'))
         .map(cb => cb.value);
-      const with_summary = document.getElementById('withSummary').checked;
+      const with_summary = document.getElementById('withSummaryToggle').checked;
       const res = await fetch('/api/算卦', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,10 +107,8 @@ async function handleRequest(request) {
       const container = document.getElementById('result');
       if (data.error) return container.innerHTML = `<p style="color:red">${data.error}</p>`;
       let html = `<p><strong>卦象：</strong>${data.gua.join('，')}</p>`;
-      for (const cat of categories) {
-        if (cat !== '整体结论') html += `<p><strong>${cat}：</strong>${data.answers[cat]}</p>`;
-      }
-      if (data.summary) html += `<p><strong>整体结论：</strong>${data.summary}</p>`;
+      categories.forEach(cat => html += `<p><strong>${cat}：</strong>${data.answers[cat]}</p>`);
+      if (with_summary) html += `<p><strong>整体结论：</strong>${data.summary}</p>`;
       container.innerHTML = html;
     }
   </script>
@@ -113,10 +124,9 @@ async function handleRequest(request) {
     if (!Array.isArray(nums) || nums.length !== 3 || nums.some(n => typeof n !== 'number')) {
       return new Response(JSON.stringify({ error:'nums 必须是包含三个数字的数组' }), { status:400, headers:{ 'Content-Type':'application/json' } });
     }
-    if (!Array.isArray(categories)) { data.categories = ['运势','财富','感情','事业','身体','行人']; }
     const gua = calcGua(nums);
     const answers = {};
-    categories.forEach(cat => { if (cat!=='整体结论') answers[cat] = explanations[gua[0]][cat] || ''; });
+    categories.forEach(cat => { answers[cat] = explanations[gua[0]][cat] || ''; });
     const result = { gua, answers };
     if (with_summary) result.summary = generateSummary(gua);
     return new Response(JSON.stringify(result,null,2), { headers:{ 'Content-Type':'application/json' } });
